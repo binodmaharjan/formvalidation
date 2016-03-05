@@ -52,8 +52,8 @@ artifacts {
 }
 
 bintray {
-    user = 'donib-em'
-    key = '115feda091e1ce02b58a46fba84fec67efd852df'
+    user = 'your-user-name-here'
+    key = 'your-key-here'
     pkg {
         repo = 'maven'
         name = 'com.binod.maharjan.formvalidation'

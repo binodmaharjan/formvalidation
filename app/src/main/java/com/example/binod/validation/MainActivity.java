@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         form.checkMinLength(editText, 8, "Length must be atleast 4");
         form.checkEmpty(editText2, "Must not be empty");
 
+
         Log.i("validate", "" + form.validate());
 
     }
