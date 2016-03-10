@@ -32,11 +32,11 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-   // compile project(':formvalidation')
+    compile project(':formvalidation')
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.jakewharton:butterknife:7.0.1'
-   compile 'com.binod.maharjan:formvalidation:1.0.0@aar'
+//   compile 'com.binod.maharjan:formvalidation:1.0.0@aar'
 
     compile 'com.binod:jigulib:1.0.0'
 }
