@@ -11,8 +11,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.binod.maharjan.formvalidation.FormV3;
 import com.binod.maharjan.formvalidation.Form;
+import com.binod.maharjan.formvalidation.helper.RegexTemplate;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -60,17 +60,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void isValidate() {
+    public boolean isValidate() {
         Form form = new Form(this);
-        form.checkEmpty(editText, "Must not be empty");
-        form.checkPattern(editText, FormV3.TYPE_EMAIL, "Invalid email");
-//        form.checkMinLength(editText, 8, "Length must be atleast 4");
-        form.checkEmpty(editText2, "Must not be empty");
-        form.checkMinLength((TextView) spinner.getSelectedView(), 5, "must be at least 5");
-
-
-        Log.i("validate", "" + form.validate());
-
+        form.check(editText, RegexTemplate.NOT_EMPTY_PATTERN, "empty ");
+        form.check(editText2, RegexTemplate.NOT_EMPTY_PATTERN, "empty ");
+        return form.validate();
     }
 
 
