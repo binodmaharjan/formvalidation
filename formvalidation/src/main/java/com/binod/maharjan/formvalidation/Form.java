@@ -1,76 +1,105 @@
 package com.binod.maharjan.formvalidation;
 
-/**
- * Created by binod on 3/8/16.
- */
 
 import android.content.Context;
-import android.util.Patterns;
-import android.widget.TextView;
+import android.widget.EditText;
 
+
+import com.binod.maharjan.formvalidation.base.Validator;
+import com.binod.maharjan.formvalidation.base.ValidatorException;
+import com.binod.maharjan.formvalidation.helper.Range;
+import com.binod.maharjan.formvalidation.validator.ConfirmPasswordValidator;
+import com.binod.maharjan.formvalidation.validator.DateValidator;
+import com.binod.maharjan.formvalidation.validator.LengthValidator;
+import com.binod.maharjan.formvalidation.validator.RegExpValidator;
+import com.binod.maharjan.formvalidation.validator.ValueValidator;
+
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-/**
- * Created by binod on 3/4/16.
- */
 public class Form {
 
-    public static final Pattern TYPE_EMAIL= Patterns.EMAIL_ADDRESS;
-    public static final String TELEPHONE = "(^\\+\\d+)?[0-9\\s()-]*";
+    public static final String TAG = Form.class.getSimpleName();
 
-    Context mContext;
+    final Context context;
+    final Map<EditText, List<Validator>> fieldValidators;
 
-    HashMap<TextView,List<Checker>> fields;
-
-    public Form(Context mContext) {
-        this.mContext = mContext;
-
-        fields=new HashMap<>();
+    public Form(Context context) {
+        this.context = context;
+        this.fieldValidators = new HashMap<>();
     }
 
-    public void checkEmpty(TextView editText,String errorMsg){
-        Checker checker=new EmptyChecker(errorMsg);
-        addFields(editText,checker);
+
+    public void check(EditText editText, String regex, String errMsg) {
+        RegExpValidator validator = new RegExpValidator(Pattern.compile(regex), errMsg);
+        addValidator(editText, validator);
     }
 
-    public void checkMinLength(TextView editText,int length,String errorMsg){
-        MinLengthChecker checker=new MinLengthChecker(length,errorMsg);
-        addFields(editText,checker);
+    public void check(EditText editText, Pattern pattern, String errMsg) {
+        RegExpValidator validator = new RegExpValidator(pattern, errMsg);
+        addValidator(editText, validator);
     }
 
-    public void checkPattern(TextView editText,String regex,String errorMsg){
-        Pattern p=Pattern.compile(regex);
-        RegExpValidator validator=new RegExpValidator(p,errorMsg);
-        addFields(editText,validator);
-
+    public void check(EditText editText, Validator validator, String errMsg) {
+        addValidator(editText, validator);
     }
 
-    public void checkPattern(TextView editText,Pattern p,String errorMsg){
-        RegExpValidator validator=new RegExpValidator(p,errorMsg);
-        addFields(editText,validator);
+    public void checkValue(EditText editText, Range range, String errMsg) {
+        ValueValidator validator = new ValueValidator(range, errMsg);
+        addValidator(editText, validator);
+    }
+
+    public void checkLength(EditText editText, Range range, String errMsg) {
+        LengthValidator validator = new LengthValidator(range, errMsg);
+        addValidator(editText, validator);
+    }
+
+    public void checkDate(EditText editText, Range range, DateFormat dateFormat, String errMsg) {
+        DateValidator validator = new DateValidator(range, dateFormat, errMsg);
+        addValidator(editText, validator);
+    }
+
+    public void checkConfirmPassword(EditText editText, String firstPassword, String errorMsg) {
+        ConfirmPasswordValidator validator = new ConfirmPasswordValidator(firstPassword, errorMsg);
+        addValidator(editText, validator);
     }
 
     public boolean validate() {
         boolean formValid = true;
-        for (Map.Entry<TextView, List<Checker>> entry : fields.entrySet()) {
-            TextView editText = entry.getKey();
-            List<Checker> validators = entry.getValue();
-            formValid = formValid & validateField(editText, validators);
+        for (Map.Entry<EditText, List<Validator>> entry : fieldValidators.entrySet()) {
+            EditText editText = entry.getKey();
+            List<Validator> validators = entry.getValue();
+            formValid = formValid & this.validateField(editText, validators);
         }
 
         return formValid;
     }
 
+    public void clearErrors() {
+        for (Map.Entry<EditText, List<Validator>> entry : fieldValidators.entrySet()) {
+            EditText editText = entry.getKey();
+            editText.setError(null);
+        }
+    }
 
+    public void clear() {
+        fieldValidators.clear();
+    }
 
-    private boolean validateField(TextView editText, List<Checker> validators) {
-        for (Checker validator : validators) {
-            if (!validator.isValid(editText.getText().toString().trim())) {
-                editText.setError(validator.getMessage());
+    private boolean validateField(EditText editText, List<Validator> validators) {
+        for (Validator validator : validators) {
+            try {
+                if (!validator.isValid(editText.getText().toString())) {
+                    editText.setError(validator.getMessage());
+                    return false;
+                }
+            } catch (ValidatorException e) {
+                e.printStackTrace();
+                editText.setError(e.getMessage());
                 return false;
             }
         }
@@ -78,14 +107,15 @@ public class Form {
         return true;
     }
 
-    private void addFields(TextView editText, Checker checker) {
-        List<Checker> c;
-        if (fields.containsKey(editText)) {
-            c = fields.get(editText);
+    private void addValidator(EditText editText, Validator validator) {
+        List<Validator> v;
+        if (fieldValidators.containsKey(editText)) {
+            v = fieldValidators.get(editText);
         } else {
-            c = new ArrayList<>();
-            fields.put(editText, c);
+            v = new ArrayList<>();
+            fieldValidators.put(editText, v);
         }
-        c.add(checker);
+        v.add(validator);
     }
+
 }
