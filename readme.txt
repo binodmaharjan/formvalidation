@@ -1,8 +1,10 @@
 uses
 
-Form form=new Form(this);
-form.check(editText,RegexTemplate.Email,"error msg");
-form.validate();
+         Form form = new Form(this);
+        form.check(editText, RegexTemplate.NOT_EMPTY_PATTERN, "field is empty ");
+        form.check(editText2, RegexTemplate.EMAIL_PATTERN, "Not a valid email pattern ");
+        form.checkLength(editText2, Range.equal(10), "must be of length 10 ");
+         form.validate();
 
 form validation
 
